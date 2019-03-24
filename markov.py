@@ -80,7 +80,7 @@ def generateText(dictionary):
 #main
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        print("Usage: ./markov.py <input> <words> <output>")
+        print("Usage: ./markov.py <input> <sentences> <output>")
     else:
         fileName = sys.argv[1]
         doc = docx.Document() 
