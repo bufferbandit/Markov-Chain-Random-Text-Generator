@@ -1,11 +1,10 @@
-import sys
+import sys,docx
 import os.path
 from random import choice
 
 END_PUNCTATION = ["!","?","."]
-MAX_SENTENCES = 10
 
-DEBUG = True
+DEBUG = False #True
 
 def generateDict(text):
     words = text.split()
@@ -52,6 +51,7 @@ def generateText(dictionary):
             chosenWord = choice(possibleWords)
 
             key = (key[1],chosenWord)
+            #print(chosenWord, end=" ")
 
             if DEBUG and len(possibleWords)>1:   #with DEBUG enabled you will see a colored word when the word was chosen from a more-than-1 choice list, aka the sentence could have gone 2 or more ways.
                 sentence.append("\033[94m" + chosenWord + "\033[0m")
@@ -62,7 +62,7 @@ def generateText(dictionary):
             if chosenWord[-1] in END_PUNCTATION:    #if the last char of the word is a end sentence thing
                 sentence.append("\n")
                 sentences = sentences + 1
-                if sentences > MAX_SENTENCES:
+                if sentences > int(sys.argv[2]):
                     break 
 
         except KeyError:    #the path is closed, better start another sentence!
@@ -70,23 +70,33 @@ def generateText(dictionary):
             sentence.append("\n")
             sentence.append(key[0])
             sentence.append(key[1])
+       
+       #print(sentence[-1], end=" ")
+       # print(key)
 
     return " ".join(sentence)
 
 
 #main
 if __name__ == "__main__":
-    if len(sys.argv) == 1:
-        print("File name needed in input.")
+    if len(sys.argv) != 4:
+        print("Usage: ./markov.py <input> <words> <output>")
     else:
         fileName = sys.argv[1]
+        doc = docx.Document() 
+        doc_para = doc.add_paragraph('')
         if os.path.isfile(fileName):
             with open(fileName, 'r') as inputFile:
                 text = inputFile.read()
                 dictionary = generateDict(text)
                 if dictionary:
                     text = generateText(dictionary)
-                    print("\n\n" + text)
+                    #print("\n\n--Result--\n\n" + text)
+                    with open(sys.argv[3]+".txt","a" ) as f:
+                       f.write(text) 
+                       doc_para.add_run(text)
+                       doc.save(sys.argv[3]+".doc")
+                    #doc.save('path_to_document') 
                 else:
                     print("Can't generate dictionary from the input text.\nERROR in generateDict.")
         else:
